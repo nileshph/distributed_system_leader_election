@@ -36,6 +36,8 @@ public class PelegsProcessor implements Runnable {
 					//get msg with max UID
 					Msg y = getMaxUID();
 
+					System.out.println("Max UID msg is" + y.toString());
+					System.out.println("Current node status is: " + t.x + "|" + t.d  + " c-->" + t.c);
 					/*
 					 * if for current round,
 					 * max X is received is greater than the current
@@ -66,6 +68,7 @@ public class PelegsProcessor implements Runnable {
 								{
 									t.d = z;
 									t.c = 0;
+									sendMsgToNeighbors();
 								}
 								else
 									if(z==t.d)
@@ -78,6 +81,8 @@ public class PelegsProcessor implements Runnable {
 										 */
 										if(t.c == 2)
 											sendTerminationMsgtoAll();
+										else
+											sendMsgToNeighbors();
 									}
 							}
 					}
