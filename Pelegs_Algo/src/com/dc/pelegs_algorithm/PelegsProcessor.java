@@ -36,6 +36,12 @@ public class PelegsProcessor implements Runnable {
 					//get msg with max UID
 					Msg y = getMaxUID();
 
+					/*
+					 * if for current round,
+					 * max X is received is greater than the current
+					 * X, then change current X and D and then broadcast 
+					 * it to neightbors
+					 */
 					if(y.x > t.x)
 					{
 						t.b = false;
@@ -70,7 +76,8 @@ public class PelegsProcessor implements Runnable {
 										 * detect the termination if c ==2
 										 * Send termination msg to all neighbors
 										 */
-										sendTerminationMsgtoAll();
+										if(t.c == 2)
+											sendTerminationMsgtoAll();
 									}
 							}
 					}
@@ -87,6 +94,7 @@ public class PelegsProcessor implements Runnable {
 
 		for(int neighbor: t.getNeighbors())
 		{
+			System.out.println("sending normal message for round " + t.round + " to neighbor UID " + neighbor);
 			Node tt = Node.getConfigMap().get(neighbor);
 			try {
 				Socket st = new Socket(tt.host, tt.port);
