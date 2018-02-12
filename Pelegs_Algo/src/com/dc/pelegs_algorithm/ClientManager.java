@@ -46,6 +46,7 @@ public class ClientManager implements Runnable{
 			}
 
 		}
+		System.out.println("Termination detected, stopping client manager thread");
 
 		runCleanUp();
 	}

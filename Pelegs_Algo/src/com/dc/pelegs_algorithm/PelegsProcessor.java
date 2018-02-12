@@ -20,18 +20,17 @@ public class PelegsProcessor implements Runnable {
 
 		while(!t.termination)
 		{
-			//System.out.println("Processing round : " + t.getRound());
 			int currRound = t.getRound();
 			if(currRound==0)
 			{
 				sendMsgToNeighbors();
-
 				t.setRound(currRound + 1);
 			}
 			else
 			{
 				if(checkForAllmsg())
 				{
+					System.out.println("Processing round : " + t.getRound());
 					//proceed with current round
 
 					//get msg with max UID
@@ -79,6 +78,9 @@ public class PelegsProcessor implements Runnable {
 				}
 			}
 		}
+
+		//propogate termination message to one hop neighbors
+		sendTerminationMsgtoAll();
 	}
 
 	private void sendMsgToNeighbors() {
@@ -90,7 +92,7 @@ public class PelegsProcessor implements Runnable {
 				Socket st = new Socket(tt.host, tt.port);
 				ObjectOutputStream oStream = new ObjectOutputStream(st.getOutputStream());
 
-				Msg msg = new Msg(t.x, t.d, t.round);
+				Msg msg = new Msg(t.x, t.d, t.round,t.UID);
 				oStream.writeObject(msg);
 				st.close();
 
@@ -104,12 +106,12 @@ public class PelegsProcessor implements Runnable {
 
 		for(int UID : t.getNeighbors())
 		{
+			System.out.println("Sending termination message to UID: " + UID);
 			Node tt = Node.getConfigMap().get(UID);
 
-			Msg terminationMsg = new Msg(t.x, -1, t.round+1);
+			Msg terminationMsg = new Msg(t.x, -1, t.round+1,t.UID);
 
 			try {
-
 				Socket st = new Socket(tt.host, tt.port);
 				ObjectOutputStream out = new ObjectOutputStream(st.getOutputStream());
 				out.writeObject(terminationMsg);
@@ -119,8 +121,6 @@ public class PelegsProcessor implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
-
 		}
 	}
 
@@ -149,7 +149,6 @@ public class PelegsProcessor implements Runnable {
 			}
 			return maxMsg;
 		}
-
 	}
 
 	/*

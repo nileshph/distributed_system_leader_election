@@ -16,18 +16,20 @@ public class Msg implements Serializable {
 	int x;
 	int d;
 	int round;
+	int sender_UID;
 
 	public Msg(boolean nullMsgFlag) {
 		super();
 		this.nullMsgFlag = nullMsgFlag;
 	}
 
-	public Msg(int x, int d, int round) {
+	public Msg(int x, int d, int round, int UID) {
 		super();
 		this.x = x;
 		this.d = d;
 		this.round = round;
 		this.nullMsgFlag=false;
+		this.sender_UID=UID;
 	}
 
 	public int getX() {
@@ -37,7 +39,7 @@ public class Msg implements Serializable {
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return (this.nullMsgFlag + "|" + this.x + "|" + this.d + "|" + this.round);
+		return (this.nullMsgFlag + "|" + this.x + "|" + this.d + "|" + this.round +"|"  + this.sender_UID);
 	}
 
 	public void setX(int x) {
