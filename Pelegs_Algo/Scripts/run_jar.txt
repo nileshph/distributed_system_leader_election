@@ -1,0 +1,5 @@
+java -jar pelegs.jar 123 /Users/nilesh/Desktop/config.txt
+java -jar pelegs.jar 5 /Users/nilesh/Desktop/config.txt
+java -jar pelegs.jar 23 /Users/nilesh/Desktop/config.txt
+java -jar pelegs.jar 1043 /Users/nilesh/Desktop/config.txt
+java -jar pelegs.jar 89 /Users/nilesh/Desktop/config.txt
