@@ -102,7 +102,6 @@ public class Msg implements Serializable {
 
 	@Override
 	public String toString() {
-		return ( " Null Message:" + this.nullMsgFlag + ", X: " + this.x + ", D: " + this.d + ", Round:" + this.round + ", Sender_UID:"  + this.senderUID
-				+ ", maxDegree: " + this.maxDegree + ", Ack: " + this.ack);
+		return ( "X:" + this.x + ",D:" + this.d + ",Round:" + this.round + ",Sender:" + this.senderUID);
 	}
 }

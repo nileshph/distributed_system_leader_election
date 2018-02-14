@@ -33,17 +33,19 @@ public class PelegsProcessor implements Runnable {
 					System.out.println("Processing round : " + thisNode.getRound());
 					//proceed with current round
 
-					int z = Integer.MIN_VALUE;
-					
+					int z = Integer.MAX_VALUE;
+					int[] arr = new int[1];
+					arr[0] = z;
 					/*
 					 * for current round -1 
 					 * get msg with max x, if this x = thisNode.x
 					 * get max distance from all the messages for current round -1 
-					 * and have x = thisNode.x, that's the z
+					 * and have x = thisNode.x, that's the arr[0] calculated and set from getMaxUID method
 					 */
-					Msg y = getMaxUID(z);
+					Msg y = getMaxUID(arr);
+					z = arr[0];
 
-					System.out.println("Max UID msg is" + y.toString());
+					System.out.println("Max UID msg is" + y.toString() + ",max_distance: " + z);
 					System.out.println("Current node status is X: " + thisNode.x + ", d:" + thisNode.d  + ",C:" + thisNode.c);
 					/*
 					 * if for the current round,
@@ -55,7 +57,7 @@ public class PelegsProcessor implements Runnable {
 					{
 						thisNode.b = false;
 						thisNode.x = y.getX();
-						
+
 						// does this should be current round ?? as per the peleg's paper
 						thisNode.d = y.getD() + 1;
 						sendMsgToNeighbors();
@@ -94,7 +96,7 @@ public class PelegsProcessor implements Runnable {
 											System.out.println("Leader found at " +  thisNode.UID);
 											sendTerminationMsgtoAll();
 										}
-											
+
 										else
 											sendMsgToNeighbors();
 									}
@@ -113,7 +115,7 @@ public class PelegsProcessor implements Runnable {
 
 		for(int neighbor: thisNode.getNeighbors())
 		{
-			System.out.println("Sending Peleg's Message for Round: " + thisNode.round + " to neighbor with UID: " + neighbor);
+			System.out.println("Message sent, X:" + thisNode.x + ",D:" + thisNode.d + ",Receiver: " + neighbor + ",round:" + thisNode.round);
 			Node tt = Node.getConfigMap().get(neighbor);
 			try {
 				Socket st = new Socket(tt.host, tt.port);
@@ -150,7 +152,7 @@ public class PelegsProcessor implements Runnable {
 		}
 	}
 
-	Msg getMaxUID(int maxDistance) {
+	Msg getMaxUID(int[] arr) {
 
 		/*
 		 * Function to get message with Max UID for the last round
@@ -158,6 +160,7 @@ public class PelegsProcessor implements Runnable {
 		 * deleted from the buffer
 		 */
 		int max = Integer.MIN_VALUE;
+		int z = Integer.MIN_VALUE;
 		Msg maxMsg = null;
 		List<Msg> msgBuffer = thisNode.getMsgBuffer();
 		synchronized(msgBuffer)
@@ -171,7 +174,7 @@ public class PelegsProcessor implements Runnable {
 					maxMsg = msg;
 				}
 			}
-			
+
 			/*
 			 * remove all those messages which has X < maxMsg.x
 			 * out of all remaining messages for thisNode.round - 1
@@ -180,13 +183,14 @@ public class PelegsProcessor implements Runnable {
 			for(Iterator<Msg> iterator = msgBuffer.iterator(); iterator.hasNext();)
 			{
 				Msg msg = iterator.next();
-				if(msg!=null && msg.getRound() == (thisNode.round - 1) && msg.getX() < max)
+				if(msg!=null && msg.getRound() == (thisNode.round - 1) && msg.getX() < maxMsg.getX())
 					thisNode.msgBuffer.remove(msg);
 				else
-					if(msg!=null && msg.getRound() == (thisNode.round -1) && msg.getX() == max)
-						if(maxDistance < msg.getD())
-							maxDistance = msg.getD();
+					if(msg!=null && msg.getRound() == (thisNode.round - 1) && msg.getX() == maxMsg.getX())
+						if(z < msg.getD())
+							z = msg.getD();
 			}
+			arr[0] = z;
 			return maxMsg;
 		}
 	}
