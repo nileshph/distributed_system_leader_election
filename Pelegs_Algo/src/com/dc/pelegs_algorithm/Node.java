@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -26,6 +25,8 @@ public class Node {
 	int port;
 	ServerSocket serverSocket;
 
+	// parent, children, degree
+	
 	//List of UID's of the neighbors of the node
 	ArrayList<Integer> neighbors;
 
@@ -35,10 +36,9 @@ public class Node {
 	//map of configuration file with UID as a key
 	static HashMap<Integer, Node> configMap;
 
-	//Buffer of messages to keep system synchronized
-	//make sure to move to particular round only if messages for that round are received from all the
-	//neighbors
-
+	/*
+	 * Thread safe buffer of messages received till now
+	 */
 	CopyOnWriteArrayList<Msg> msgBuffer;
 
 	public static HashMap<Integer, Node> getConfigMap() {
@@ -155,31 +155,37 @@ public class Node {
 
 		thisNode.setServerSocket(socket);
 
-		System.out.println("Config file read, Socket created");
+		System.out.println("Config file read, Socket created, halting for 10 sec");
 		
-		//start the client manager thread which will accept msg from clients and
-		//store them into buffer
+		/*
+		 * Start client manager process which will keep accepting incoming connections to socket
+		 * read messages and store them into thread safe buffer
+		 */
 		ClientManager ct = new ClientManager(thisNode);
 		Thread t = new Thread(ct);
 		t.start();
 
+		/*
+		 * halt processing for 10 seconds to make sure other nodes are up and accepting socket connections
+		 */
 		try {
 			Thread.sleep(10000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		System.out.println("Client manager started");
 		
-		//create one more thread to do processing of the peleg's algorithm
+		/*
+		 * Create another thread to process Peleg's leader election algorithm
+		 */
 		PelegsProcessor pp = new PelegsProcessor(thisNode);
 		
 		Thread processorThread = new Thread(pp);
 		
 		processorThread.start();
 		
-		System.out.println("Pelegs processor started");
+		System.out.println("Pelegs processor thread started");
 
 		sc.close();
 	}

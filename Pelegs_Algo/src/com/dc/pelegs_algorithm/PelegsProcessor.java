@@ -8,85 +8,85 @@ import java.util.List;
 
 public class PelegsProcessor implements Runnable {
 
-	Node t;
+	Node thisNode;
 
 	public PelegsProcessor(Node t) {
 		super();
-		this.t = t;
+		this.thisNode = t;
 	}
 
 	@Override
 	public void run() {
 
-		while(!t.termination)
+		while(!thisNode.termination)
 		{
-			int currRound = t.getRound();
+			int currRound = thisNode.getRound();
 			if(currRound==0)
 			{
 				sendMsgToNeighbors();
-				t.setRound(currRound + 1);
+				thisNode.setRound(currRound + 1);
 			}
 			else
 			{
 				if(checkForAllmsg())
 				{
-					System.out.println("Processing round : " + t.getRound());
+					System.out.println("Processing round : " + thisNode.getRound());
 					//proceed with current round
 
-					//get msg with max UID
+					//get msg with max UID for last round
 					Msg y = getMaxUID();
 
 					System.out.println("Max UID msg is" + y.toString());
-					System.out.println("Current node status is: " + t.x + "|" + t.d  + " c-->" + t.c);
+					System.out.println("Current node status is X: " + thisNode.x + ", d:" + thisNode.d  + ",C:" + thisNode.c);
 					/*
-					 * if for current round,
+					 * if for the current round,
 					 * max X is received is greater than the current
 					 * X, then change current X and D and then broadcast 
-					 * it to neightbors
+					 * it to neighbors
 					 */
-					if(y.x > t.x)
+					if(y.x > thisNode.x)
 					{
-						t.b = false;
-						t.x = y.getX();
-						t.d = y.getD() + 1;
+						thisNode.b = false;
+						thisNode.x = y.getX();
+						thisNode.d = y.getD() + 1;
 						sendMsgToNeighbors();
 					}
 					else
 					{
-						if(y.x < t.x)
+						if(y.x < thisNode.x)
 						{
-							t.c = 1;
+							thisNode.c = 1;
 							sendMsgToNeighbors();
 						}
 
 						else
-							if(y.x == t.x)
+							if(y.x == thisNode.x)
 							{
-								int z = Math.max(t.d, y.d);
+								int z = Math.max(thisNode.d, y.d);
 
-								if(z > t.d)
+								if(z > thisNode.d)
 								{
-									t.d = z;
-									t.c = 0;
+									thisNode.d = z;
+									thisNode.c = 0;
 									sendMsgToNeighbors();
 								}
 								else
-									if(z==t.d)
+									if(z==thisNode.d)
 									{
-										t.c = t.c + 1;
+										thisNode.c = thisNode.c + 1;
 
 										/*
 										 * detect the termination if c ==2
-										 * Send termination msg to all neighbors
+										 * Send termination message to all neighbors
 										 */
-										if(t.c == 2)
+										if(thisNode.c == 2)
 											sendTerminationMsgtoAll();
 										else
 											sendMsgToNeighbors();
 									}
 							}
 					}
-					t.setRound(t.round + 1);
+					thisNode.setRound(thisNode.round + 1);
 				}
 			}
 		}
@@ -97,15 +97,15 @@ public class PelegsProcessor implements Runnable {
 
 	private void sendMsgToNeighbors() {
 
-		for(int neighbor: t.getNeighbors())
+		for(int neighbor: thisNode.getNeighbors())
 		{
-			System.out.println("sending normal message for round " + t.round + " to neighbor UID " + neighbor);
+			System.out.println("Sending Peleg's Message for Round: " + thisNode.round + " to neighbor with UID: " + neighbor);
 			Node tt = Node.getConfigMap().get(neighbor);
 			try {
 				Socket st = new Socket(tt.host, tt.port);
 				ObjectOutputStream oStream = new ObjectOutputStream(st.getOutputStream());
 
-				Msg msg = new Msg(t.x, t.d, t.round,t.UID);
+				Msg msg = new Msg(thisNode.x, thisNode.d, thisNode.round,thisNode.UID);
 				oStream.writeObject(msg);
 				st.close();
 
@@ -117,12 +117,12 @@ public class PelegsProcessor implements Runnable {
 
 	void sendTerminationMsgtoAll() {
 
-		for(int UID : t.getNeighbors())
+		for(int UID : thisNode.getNeighbors())
 		{
-			System.out.println("Sending termination message to UID: " + UID);
+			System.out.println("Sending the termination message to the UID: " + UID);
 			Node tt = Node.getConfigMap().get(UID);
 
-			Msg terminationMsg = new Msg(t.x, -1, t.round+1,t.UID);
+			Msg terminationMsg = new Msg(thisNode.x, -1, thisNode.round+1,thisNode.UID);
 
 			try {
 				Socket st = new Socket(tt.host, tt.port);
@@ -131,7 +131,6 @@ public class PelegsProcessor implements Runnable {
 				st.close();
 
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -139,15 +138,20 @@ public class PelegsProcessor implements Runnable {
 
 	Msg getMaxUID() {
 
+		/*
+		 * Function to get message with Max UID for the last round
+		 * Any other messages for the last round with UID < Max UID will be
+		 * deleted from the buffer
+		 */
 		int max = Integer.MIN_VALUE;
 		Msg maxMsg = null;
-		List<Msg> msgBuffer = t.getMsgBuffer();
+		List<Msg> msgBuffer = thisNode.getMsgBuffer();
 		synchronized(msgBuffer)
 		{
 			for(Iterator<Msg> iterator = msgBuffer.iterator(); iterator.hasNext();)
 			{
 				Msg msg = iterator.next();
-				if(msg!=null && msg.getX() > max && msg.getRound() == (t.round - 1))
+				if(msg!=null && msg.getX() > max && msg.getRound() == (thisNode.round - 1))
 				{
 					max = msg.getX();
 					maxMsg = msg;
@@ -157,8 +161,8 @@ public class PelegsProcessor implements Runnable {
 			for(Iterator<Msg> iterator = msgBuffer.iterator(); iterator.hasNext();)
 			{
 				Msg msg = iterator.next();
-				if(msg!=null && msg.getRound() == (t.round - 1) && msg.getX() < max)
-					t.msgBuffer.remove(msg);
+				if(msg!=null && msg.getRound() == (thisNode.round - 1) && msg.getX() < max)
+					thisNode.msgBuffer.remove(msg);
 			}
 			return maxMsg;
 		}
@@ -171,22 +175,22 @@ public class PelegsProcessor implements Runnable {
 	private  boolean checkForAllmsg() {
 
 		int cnt = 0;
-		List<Msg> msgBuffer = t.getMsgBuffer();
+		List<Msg> msgBuffer = thisNode.getMsgBuffer();
 		synchronized(msgBuffer)
 		{
 			for(Iterator<Msg> iterator = msgBuffer.iterator(); iterator.hasNext();)
 			{
 				Msg msg = iterator.next();
-				if(msg!=null && msg.getRound() == (t.getRound() -1))
+				if(msg!=null && msg.getRound() == (thisNode.getRound() -1))
 				{
 					cnt++;
 					if(msg.getD() == -1) {
-						t.termination = true;
-						System.out.println("Leader Found-->" + msg.getX() +  " terminating Node with UID " + t.UID);
+						thisNode.termination = true;
+						System.out.println("Leader Found-->" + msg.getX() +  " terminating Node with UID " + thisNode.UID);
 					}
 				}
 			}	
-			if(cnt == t.getNeighbors().size())
+			if(cnt == thisNode.getNeighbors().size())
 				return true;
 
 			//System.out.println("Not all messages available for round " + (t.getRound()-1));

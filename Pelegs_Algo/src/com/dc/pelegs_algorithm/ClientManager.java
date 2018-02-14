@@ -24,11 +24,11 @@ public class ClientManager implements Runnable{
 	@Override
 	public void run() {
 
-		// need to handle broadcast of elected leader UID
-		while(!t.termination)
+		// need to handle termination of this loop
+		// after all message passing is done
+		while(true)
 		{
 			ObjectInputStream in = null;
-			String line;
 
 			try {
 				Socket s = t.getServerSocket().accept();
@@ -36,7 +36,7 @@ public class ClientManager implements Runnable{
 				Msg msg = (Msg)in.readObject();
 				t.getMsgBuffer().add(msg);
 				s.close();
-				System.out.println("Message received " + msg.toString());
+				System.out.println("Message received: " + msg.toString());
 
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -46,9 +46,9 @@ public class ClientManager implements Runnable{
 			}
 
 		}
-		System.out.println("Termination detected, stopping client manager thread");
+		//System.out.println("Termination detected, stopping client manager thread");
 
-		runCleanUp();
+		//runCleanUp();
 	}
 
 	public void runCleanUp() {
