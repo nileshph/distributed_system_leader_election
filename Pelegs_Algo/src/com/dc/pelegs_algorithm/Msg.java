@@ -1,6 +1,4 @@
 package com.dc.pelegs_algorithm;
-//package com.dc.pelegs_algorithm;
-
 
 import java.io.Serializable;
 

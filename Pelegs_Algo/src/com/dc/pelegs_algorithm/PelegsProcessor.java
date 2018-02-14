@@ -33,8 +33,15 @@ public class PelegsProcessor implements Runnable {
 					System.out.println("Processing round : " + thisNode.getRound());
 					//proceed with current round
 
-					//get msg with max UID for last round
-					Msg y = getMaxUID();
+					int z = Integer.MIN_VALUE;
+					
+					/*
+					 * for current round -1 
+					 * get msg with max x, if this x = thisNode.x
+					 * get max distance from all the messages for current round -1 
+					 * and have x = thisNode.x, that's the z
+					 */
+					Msg y = getMaxUID(z);
 
 					System.out.println("Max UID msg is" + y.toString());
 					System.out.println("Current node status is X: " + thisNode.x + ", d:" + thisNode.d  + ",C:" + thisNode.c);
@@ -48,8 +55,13 @@ public class PelegsProcessor implements Runnable {
 					{
 						thisNode.b = false;
 						thisNode.x = y.getX();
+						
+						// does this should be current round ?? as per the peleg's paper
 						thisNode.d = y.getD() + 1;
 						sendMsgToNeighbors();
+
+						//do we need this ?? reset c counter if x changed
+						//thisNode.c = 0;
 					}
 					else
 					{
@@ -62,8 +74,6 @@ public class PelegsProcessor implements Runnable {
 						else
 							if(y.x == thisNode.x)
 							{
-								int z = Math.max(thisNode.d, y.d);
-
 								if(z > thisNode.d)
 								{
 									thisNode.d = z;
@@ -80,7 +90,11 @@ public class PelegsProcessor implements Runnable {
 										 * Send termination message to all neighbors
 										 */
 										if(thisNode.c == 2)
+										{
+											System.out.println("Leader found at " +  thisNode.UID);
 											sendTerminationMsgtoAll();
+										}
+											
 										else
 											sendMsgToNeighbors();
 									}
@@ -136,7 +150,7 @@ public class PelegsProcessor implements Runnable {
 		}
 	}
 
-	Msg getMaxUID() {
+	Msg getMaxUID(int maxDistance) {
 
 		/*
 		 * Function to get message with Max UID for the last round
@@ -157,12 +171,21 @@ public class PelegsProcessor implements Runnable {
 					maxMsg = msg;
 				}
 			}
-			//remove all the messages with current round -1 which has x < max
+			
+			/*
+			 * remove all those messages which has X < maxMsg.x
+			 * out of all remaining messages for thisNode.round - 1
+			 * get Max of d
+			 */
 			for(Iterator<Msg> iterator = msgBuffer.iterator(); iterator.hasNext();)
 			{
 				Msg msg = iterator.next();
 				if(msg!=null && msg.getRound() == (thisNode.round - 1) && msg.getX() < max)
 					thisNode.msgBuffer.remove(msg);
+				else
+					if(msg!=null && msg.getRound() == (thisNode.round -1) && msg.getX() == max)
+						if(maxDistance < msg.getD())
+							maxDistance = msg.getD();
 			}
 			return maxMsg;
 		}
