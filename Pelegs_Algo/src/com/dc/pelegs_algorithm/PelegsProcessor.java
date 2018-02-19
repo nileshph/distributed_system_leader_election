@@ -18,7 +18,7 @@ public class PelegsProcessor implements Runnable {
 	@Override
 	public void run() {
 
-		while(!thisNode.termination)
+		while(!thisNode.terminatePelegsFlag)
 		{
 			int currRound = thisNode.getRound();
 			if(currRound==0)
@@ -95,7 +95,7 @@ public class PelegsProcessor implements Runnable {
 										{
 											System.out.println("Leader found at " +  thisNode.UID);
 											sendTerminationMsgtoAll();
-											thisNode.termination = true;
+											thisNode.terminatePelegsFlag = true;
 										}
 										else
 											sendMsgToNeighbors();
@@ -215,7 +215,7 @@ public class PelegsProcessor implements Runnable {
 				{
 					cnt++;
 					if(msg.getD() == -1) {
-						thisNode.termination = true;
+						thisNode.terminatePelegsFlag = true;
 						System.out.println("Leader Found-->" + msg.getX() +  " terminating Node with UID " + thisNode.UID);
 					}
 				}

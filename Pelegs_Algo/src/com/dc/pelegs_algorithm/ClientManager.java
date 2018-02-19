@@ -14,25 +14,25 @@ import java.net.Socket;
 public class ClientManager implements Runnable{
 
 	//object of type node on which this thread runs
-	Node t;
+	Node thisNode;
 
 	public ClientManager(Node t) {
 		super();
-		this.t = t;
+		this.thisNode = t;
 	}
 
 	@Override
 	public void run() {
 
-		while(true)
+		while(!thisNode.closeSocketFlag)
 		{
 			ObjectInputStream in = null;
 
 			try {
-				Socket s = t.getServerSocket().accept();
+				Socket s = thisNode.getServerSocket().accept();
 				in = new ObjectInputStream(s.getInputStream());
 				Msg msg = (Msg)in.readObject();
-				t.getMsgBuffer().add(msg);
+				thisNode.getMsgBuffer().add(msg);
 				s.close();
 
 				System.out.println("Message received: " + msg.toString());
@@ -40,7 +40,7 @@ public class ClientManager implements Runnable{
 				if(msg.getD() == -1)
 				{
 					System.out.println("Leader elected with UID: " + msg.getX());
-					t.termination = true;
+					thisNode.terminatePelegsFlag = true;
 				}
 
 			} catch (IOException e) {
@@ -51,8 +51,6 @@ public class ClientManager implements Runnable{
 			}
 
 		}
-		//System.out.println("Termination detected, stopping client manager thread");
-
 		//runCleanUp();
 	}
 
@@ -62,7 +60,7 @@ public class ClientManager implements Runnable{
 		 */
 
 		try {
-			t.serverSocket.close();
+			thisNode.serverSocket.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

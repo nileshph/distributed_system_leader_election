@@ -31,8 +31,11 @@ public class Node {
 	ArrayList<Integer> neighbors;
 
 	//termination flag use to terminate threads listening to sockets and processing peleg's algorithm
-	boolean termination=false;
-
+	boolean terminatePelegsFlag=false;
+	
+	//termination flag to stop server socket on this node 
+	boolean closeSocketFlag = false;
+	
 	//map of configuration file with UID as a key
 	static HashMap<Integer, Node> configMap;
 
