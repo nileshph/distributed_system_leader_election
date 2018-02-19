@@ -91,15 +91,17 @@ public class PelegsProcessor implements Runnable {
 										 * detect the termination if c ==2
 										 * Send termination message to all neighbors
 										 */
-										if(thisNode.c == 2)
+										if(thisNode.c == 2 && thisNode.x == thisNode.UID)
 										{
 											System.out.println("Leader found at " +  thisNode.UID);
 											sendTerminationMsgtoAll();
+											thisNode.termination = true;
 										}
-
 										else
 											sendMsgToNeighbors();
 									}
+									else
+										sendMsgToNeighbors();
 							}
 					}
 					thisNode.setRound(thisNode.round + 1);
@@ -109,6 +111,7 @@ public class PelegsProcessor implements Runnable {
 
 		//propogate termination message to one hop neighbors
 		sendTerminationMsgtoAll();
+		System.out.println("Pelegs processing is complete");
 	}
 
 	private void sendMsgToNeighbors() {
