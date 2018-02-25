@@ -94,8 +94,10 @@ public class PelegsProcessor implements Runnable {
 										if(thisNode.c == 2 && thisNode.x == thisNode.UID)
 										{
 											System.out.println("Leader found at " +  thisNode.UID);
+											thisNode.isLeader = true;
 											sendTerminationMsgtoAll();
 											thisNode.terminatePelegsFlag = true;
+											
 										}
 										else
 											sendMsgToNeighbors();
