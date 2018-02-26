@@ -30,7 +30,7 @@ public class PelegsProcessor implements Runnable {
 			{
 				if(checkForAllmsg())
 				{
-					System.out.println("Processing round : " + thisNode.getRound());
+					//System.out.println("Processing round : " + thisNode.getRound());
 					//proceed with current round
 
 					int z = Integer.MAX_VALUE;
@@ -45,8 +45,8 @@ public class PelegsProcessor implements Runnable {
 					Msg y = getMaxUID(arr);
 					z = arr[0];
 
-					System.out.println("Max UID msg is" + y.toString() + ",max_distance: " + z);
-					System.out.println("Current node status is X: " + thisNode.x + ", d:" + thisNode.d  + ",C:" + thisNode.c);
+					//System.out.println("Max UID msg is" + y.toString() + ",max_distance: " + z);
+					//System.out.println("Current node status is X: " + thisNode.x + ", d:" + thisNode.d  + ",C:" + thisNode.c);
 					/*
 					 * if for the current round,
 					 * max X is received is greater than the current
@@ -97,6 +97,7 @@ public class PelegsProcessor implements Runnable {
 											thisNode.isLeader = true;
 											sendTerminationMsgtoAll();
 											thisNode.terminatePelegsFlag = true;
+											thisNode.leader = thisNode.UID;
 											
 										}
 										else
@@ -113,14 +114,21 @@ public class PelegsProcessor implements Runnable {
 
 		//propogate termination message to one hop neighbors
 		sendTerminationMsgtoAll();
+		System.out.println("Leader is " + thisNode.leader );
 		System.out.println("Pelegs processing is complete");
 		
 		//clear msg buffer from pelegs processing
-		thisNode.getMsgBuffer().clear();
-		thisNode.getBfsBuffer().clear();
+		//thisNode.getMsgBuffer().clear();
+		//thisNode.getBfsBuffer().clear();
 		
+//		try {
+//			Thread.sleep(5000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		//call to bfs logic
-		BFS bf = new BFS(thisNode);
+		BFS1 bf = new BFS1(thisNode);
 		Thread bfsThread = new Thread(bf);
 		bfsThread.start();
 	}
@@ -129,7 +137,7 @@ public class PelegsProcessor implements Runnable {
 
 		for(int neighbor: thisNode.getNeighbors())
 		{
-			System.out.println("Message sent, X:" + thisNode.x + ",D:" + thisNode.d + ",Receiver: " + neighbor + ",round:" + thisNode.round);
+			//System.out.println("Message sent, X:" + thisNode.x + ",D:" + thisNode.d + ",Receiver: " + neighbor + ",round:" + thisNode.round);
 			Node tt = Node.getConfigMap().get(neighbor);
 			try {
 				Socket st = new Socket(tt.host, tt.port);
@@ -149,7 +157,7 @@ public class PelegsProcessor implements Runnable {
 
 		for(int UID : thisNode.getNeighbors())
 		{
-			System.out.println("Sending the termination message to the UID: " + UID);
+			//System.out.println("Sending the termination message to the UID: " + UID);
 			Node tt = Node.getConfigMap().get(UID);
 
 			Msg terminationMsg = new Msg(thisNode.x, -1, thisNode.round+1,thisNode.UID);

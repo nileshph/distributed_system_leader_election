@@ -40,6 +40,13 @@ public class Node {
 	int bfsRound = 0;
 	CopyOnWriteArrayList<Msg> bfsBuffer;
 	boolean allChildrenFound;
+	boolean bsfTerminateFlag = false;
+	boolean searchMsgSent = false;
+	boolean ackMsgSent = false;
+	int foundChildCounter=0;
+	int maxDegreeSoFar = Integer.MIN_VALUE;
+	int leader = -1;
+	HashMap<Integer, Integer> childMaxDegree = new HashMap<>();
 
 	public boolean isAllChildrenFound() {
 		return allChildrenFound;

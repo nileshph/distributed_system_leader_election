@@ -1,6 +1,7 @@
 package com.dc.pelegs_algorithm;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 public class Msg implements Serializable {
 
@@ -8,7 +9,7 @@ public class Msg implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	
 	//flag to identify null message
 	boolean nullMsgFlag;
 	int x;
@@ -18,13 +19,19 @@ public class Msg implements Serializable {
 	int round = -1;
 	int senderUID;
 
+	boolean bfsMsgFlag = false;
+	
 	//max degree of node in the bfs
 	int maxDegree;
+	
 	// boolean acknowledgement for Accept and Reject
 	boolean ack;
 	
-	// type of message: acknowledgement or search;
-		boolean messageTypeAck;
+	// type of message: true = acknowledgement, false = search;
+	boolean messageTypeAck;
+	
+	//hashmap of children max degree
+	HashMap<Integer, Integer> childMaxDegree = new HashMap<>();
 		
 	public Msg(boolean nullMsgFlag) {
 		super();
@@ -40,19 +47,22 @@ public class Msg implements Serializable {
 		this.senderUID=UID;
 	}
 
-	public Msg(int maxDegree, boolean ack, int senderUID, boolean messageTypeAck)
+	public Msg(int maxDegree, boolean ack, int senderUID, boolean messageTypeAck, boolean bfsFlag, HashMap<Integer, Integer> childMaxDegree)
 	{
 		this.maxDegree = maxDegree;
 		this.ack = ack;
 		this.senderUID = senderUID;
 		this.messageTypeAck = messageTypeAck;
+		this.bfsMsgFlag = bfsFlag;
+		this.childMaxDegree = childMaxDegree;
 		
 	}
 	
-	public Msg(int senderUID, boolean messageTypeAck)
+	public Msg(int senderUID, boolean messageTypeAck, boolean bfsMsgFlag)
 	{
 		this.senderUID = senderUID;
 		this.messageTypeAck = messageTypeAck;
+		this.bfsMsgFlag = bfsMsgFlag;
 	}
 	
 	public int getSenderUID() {

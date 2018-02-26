@@ -78,14 +78,15 @@ public class BFS implements Runnable {
 	private void sendSearchMessage() {
 
 		for (int neighbor : currNode.getNeighbors()) {
-			System.out.println("Message sent by:" + currNode.UID);
+			System.out.println("Search Message sent by:" + currNode.UID + " to " + neighbor);
 			Node tt = Node.getConfigMap().get(neighbor);
 
 			try {
 				Socket st = new Socket(tt.host, tt.port);
 				ObjectOutputStream oStream = new ObjectOutputStream(st.getOutputStream());
 				tt.setMarked(true);
-				Msg msg = new Msg(currNode.UID, false);
+				// Ack message=false, i.e it is search message
+				Msg msg = new Msg(currNode.UID, false, true);
 				oStream.writeObject(msg);
 				st.close();
 
@@ -101,7 +102,7 @@ public class BFS implements Runnable {
 			System.out.println("Message sent by:" + currNode.UID + " to Node: " + tt.UID);
 			Socket st = new Socket(tt.host, tt.port);
 			ObjectOutputStream oStream = new ObjectOutputStream(st.getOutputStream());
-			Msg msg = new Msg(currNode.maxDegree, acknowledgement, currNode.UID, true);
+			Msg msg = new Msg(currNode.maxDegree, acknowledgement, currNode.UID, true, true,null);
 			oStream.writeObject(msg);
 			st.close();
 

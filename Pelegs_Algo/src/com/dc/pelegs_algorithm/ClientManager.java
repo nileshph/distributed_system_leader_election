@@ -30,16 +30,19 @@ public class ClientManager implements Runnable{
 				Socket s = thisNode.getServerSocket().accept();
 				in = new ObjectInputStream(s.getInputStream());
 				Msg msg = (Msg)in.readObject();
-				thisNode.getMsgBuffer().add(msg);
-				thisNode.getBfsBuffer().add(msg);
+				if(!msg.bfsMsgFlag)
+					thisNode.getMsgBuffer().add(msg);
+				else
+					thisNode.getBfsBuffer().add(msg);
 				s.close();
 
-				System.out.println("Message received: " + msg.toString());
+				//System.out.println("Message received: " + msg.toString());
 
 				if(msg.getD() == -1)
 				{
-					System.out.println("Leader elected with UID: " + msg.getX());
+					//System.out.println("Leader elected with UID: " + msg.getX());
 					thisNode.terminatePelegsFlag = true;
+					thisNode.leader = msg.getX();
 				}
 
 			} catch (IOException e) {
@@ -50,7 +53,8 @@ public class ClientManager implements Runnable{
 			}
 
 		}
-		//runCleanUp();
+		System.out.println("Stopping client Manager");
+		runCleanUp();
 	}
 
 	public void runCleanUp() {
