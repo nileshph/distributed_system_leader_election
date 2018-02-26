@@ -1,8 +1,6 @@
 package com.dc.pelegs_algorithm;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 
@@ -33,6 +31,7 @@ public class ClientManager implements Runnable{
 				in = new ObjectInputStream(s.getInputStream());
 				Msg msg = (Msg)in.readObject();
 				thisNode.getMsgBuffer().add(msg);
+				thisNode.getBfsBuffer().add(msg);
 				s.close();
 
 				System.out.println("Message received: " + msg.toString());
@@ -62,7 +61,6 @@ public class ClientManager implements Runnable{
 		try {
 			thisNode.serverSocket.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

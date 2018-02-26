@@ -22,7 +22,10 @@ public class Msg implements Serializable {
 	int maxDegree;
 	// boolean acknowledgement for Accept and Reject
 	boolean ack;
-
+	
+	// type of message: acknowledgement or search;
+		boolean messageTypeAck;
+		
 	public Msg(boolean nullMsgFlag) {
 		super();
 		this.nullMsgFlag = nullMsgFlag;
@@ -37,11 +40,19 @@ public class Msg implements Serializable {
 		this.senderUID=UID;
 	}
 
-	public Msg(int maxDegree, boolean ack, int senderUID)
+	public Msg(int maxDegree, boolean ack, int senderUID, boolean messageTypeAck)
 	{
 		this.maxDegree = maxDegree;
 		this.ack = ack;
 		this.senderUID = senderUID;
+		this.messageTypeAck = messageTypeAck;
+		
+	}
+	
+	public Msg(int senderUID, boolean messageTypeAck)
+	{
+		this.senderUID = senderUID;
+		this.messageTypeAck = messageTypeAck;
 	}
 	
 	public int getSenderUID() {

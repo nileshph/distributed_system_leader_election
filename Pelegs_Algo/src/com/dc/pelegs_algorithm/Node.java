@@ -19,14 +19,44 @@ public class Node {
 	int d = 0;
 	int c = 0;
 	int round=0;
-
+	boolean isLeader;
+	// Total acknowledgment received
+	int ackCount = 0;
+	
 	boolean b = true;
 	String host;
 	int port;
 	ServerSocket serverSocket;
 
 	// parent, children, degree
-	
+		int parent = -1;
+		ArrayList<Integer> children;
+		int degree;
+
+		int maxDegree = 0;
+		int maxDegreeUID;
+
+		boolean marked;
+		int bfsRound = 0;
+		CopyOnWriteArrayList<Msg> bfsBuffer;
+		boolean allChildrenFound;
+
+		public boolean isAllChildrenFound() {
+			return allChildrenFound;
+		}
+
+		public void setAllChildrenFound(boolean allChildrenFound) {
+			this.allChildrenFound = allChildrenFound;
+		}
+
+		public CopyOnWriteArrayList<Msg> getBfsBuffer() {
+			return bfsBuffer;
+		}
+
+		public void setBfsBuffer(CopyOnWriteArrayList<Msg> bfsBuffer) {
+			this.bfsBuffer = bfsBuffer;
+		}
+		
 	//List of UID's of the neighbors of the node
 	ArrayList<Integer> neighbors;
 
@@ -58,6 +88,13 @@ public class Node {
 		this.x = id;
 		//thread safe buffer for messages
 		this.msgBuffer = new CopyOnWriteArrayList<>();
+		this.bfsBuffer = new CopyOnWriteArrayList<>();
+		this.children = new ArrayList<>();
+		this.parent = -1;
+		this.ackCount = 0;
+		this.degree = 0;
+		this.maxDegree = 0;
+		this.maxDegreeUID = id;
 	}
 
 	public List<Msg> getMsgBuffer() {
@@ -108,7 +145,47 @@ public class Node {
 		this.round = round;
 	}
 
+	public int getParent() {
+		return parent;
+	}
 
+	public void setParent(int parent) {
+		this.parent = parent;
+	}
+
+	public ArrayList<Integer> getChildren() {
+		return children;
+	}
+
+	public void setChildren(ArrayList<Integer> children) {
+		this.children = children;
+	}
+
+	public int getDegree() {
+		return degree;
+	}
+
+	public void setDegree(int degree) {
+		this.degree = degree;
+	}
+
+	public boolean isMarked() {
+		return marked;
+	}
+
+	public void setMarked(boolean marked) {
+		this.marked = marked;
+	}
+
+	public int getBfsRound() {
+		return bfsRound;
+	}
+
+	public void setBfsRound(int bfsRound) {
+		this.bfsRound = bfsRound;
+	}
+
+	
 	public static void main(String[] args) throws IOException {
 
 		int UID = Integer.parseInt(args[0]);
@@ -120,20 +197,24 @@ public class Node {
 		Scanner sc = new Scanner(new File(configFile));
 		HashMap<Integer, Node> confMap = new HashMap<>();
 
+		boolean neighborConfigFlag = false;
 		while(sc.hasNextLine())
 		{
-			String line = sc.nextLine();
+			String line = sc.nextLine().trim();
+			
+			if(line.startsWith("# Node#   Neighbors"))
+				neighborConfigFlag = true;
 
 			if(line.startsWith("# Number of nodes"))
 			{
-				line = sc.nextLine();
+				line = sc.nextLine().trim();
 				numberOfNode = Integer.parseInt(line);
-				line = sc.nextLine();
+				line = sc.nextLine().trim();
 			}
 
-			if(!line.startsWith("#"))
+			if(!line.startsWith("#") && (!neighborConfigFlag) && line.length() > 0)
 			{
-				String[] nodeData = line.split(" ");
+				String[] nodeData = line.split("\\s+");
 
 				int tempUID = Integer.parseInt(nodeData[0]);	
 
@@ -141,14 +222,25 @@ public class Node {
 				tempNode.setHost(nodeData[1]);
 				tempNode.setPort(Integer.parseInt(nodeData[2]));
 
+
+				confMap.put(tempUID, tempNode);
+			}
+			
+			//read neighbors
+			if(!line.startsWith("#") && (neighborConfigFlag) && line.length()>0)
+			{
+				String[] nodeData = line.split("\\s+");
+				int id = Integer.parseInt(nodeData[0]);
+				Node tempNode = confMap.get(id);
+				
 				ArrayList<Integer> tempNeighbors = new ArrayList<>();
 
-				for(int i = 3; i< nodeData.length;i++)
+				for(int i = 1; i< nodeData.length;i++)
 					tempNeighbors.add(Integer.parseInt(nodeData[i]));
 
 				tempNode.setNeighbors(tempNeighbors);
-				confMap.put(tempUID, tempNode);
 			}
+			
 		}
 		
 		Node.setConfigMap(confMap);

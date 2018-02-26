@@ -114,6 +114,15 @@ public class PelegsProcessor implements Runnable {
 		//propogate termination message to one hop neighbors
 		sendTerminationMsgtoAll();
 		System.out.println("Pelegs processing is complete");
+		
+		//clear msg buffer from pelegs processing
+		thisNode.getMsgBuffer().clear();
+		thisNode.getBfsBuffer().clear();
+		
+		//call to bfs logic
+		BFS bf = new BFS(thisNode);
+		Thread bfsThread = new Thread(bf);
+		bfsThread.start();
 	}
 
 	private void sendMsgToNeighbors() {
