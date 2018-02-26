@@ -22,50 +22,50 @@ public class Node {
 	boolean isLeader;
 	// Total acknowledgment received
 	int ackCount = 0;
-	
+
 	boolean b = true;
 	String host;
 	int port;
 	ServerSocket serverSocket;
 
 	// parent, children, degree
-		int parent = -1;
-		ArrayList<Integer> children;
-		int degree;
+	int parent = -1;
+	ArrayList<Integer> children;
+	int degree;
 
-		int maxDegree = 0;
-		int maxDegreeUID;
+	int maxDegree = 0;
+	int maxDegreeUID;
 
-		boolean marked;
-		int bfsRound = 0;
-		CopyOnWriteArrayList<Msg> bfsBuffer;
-		boolean allChildrenFound;
+	boolean marked;
+	int bfsRound = 0;
+	CopyOnWriteArrayList<Msg> bfsBuffer;
+	boolean allChildrenFound;
 
-		public boolean isAllChildrenFound() {
-			return allChildrenFound;
-		}
+	public boolean isAllChildrenFound() {
+		return allChildrenFound;
+	}
 
-		public void setAllChildrenFound(boolean allChildrenFound) {
-			this.allChildrenFound = allChildrenFound;
-		}
+	public void setAllChildrenFound(boolean allChildrenFound) {
+		this.allChildrenFound = allChildrenFound;
+	}
 
-		public CopyOnWriteArrayList<Msg> getBfsBuffer() {
-			return bfsBuffer;
-		}
+	public CopyOnWriteArrayList<Msg> getBfsBuffer() {
+		return bfsBuffer;
+	}
 
-		public void setBfsBuffer(CopyOnWriteArrayList<Msg> bfsBuffer) {
-			this.bfsBuffer = bfsBuffer;
-		}
-		
+	public void setBfsBuffer(CopyOnWriteArrayList<Msg> bfsBuffer) {
+		this.bfsBuffer = bfsBuffer;
+	}
+
 	//List of UID's of the neighbors of the node
 	ArrayList<Integer> neighbors;
 
 	//termination flag use to terminate threads listening to sockets and processing peleg's algorithm
 	boolean terminatePelegsFlag=false;
-	
+
 	//termination flag to stop server socket on this node 
 	boolean closeSocketFlag = false;
-	
+
 	//map of configuration file with UID as a key
 	static HashMap<Integer, Node> configMap;
 
@@ -185,13 +185,13 @@ public class Node {
 		this.bfsRound = bfsRound;
 	}
 
-	
+
 	public static void main(String[] args) throws IOException {
 
 		int UID = Integer.parseInt(args[0]);
 
 		System.out.println("Starting execution for the UID:" + UID);
-		
+
 		String configFile = args[1];
 		int numberOfNode = 0;
 		Scanner sc = new Scanner(new File(configFile));
@@ -201,7 +201,7 @@ public class Node {
 		while(sc.hasNextLine())
 		{
 			String line = sc.nextLine().trim();
-			
+
 			if(line.startsWith("# Node#   Neighbors"))
 				neighborConfigFlag = true;
 
@@ -225,14 +225,14 @@ public class Node {
 
 				confMap.put(tempUID, tempNode);
 			}
-			
+
 			//read neighbors
 			if(!line.startsWith("#") && (neighborConfigFlag) && line.length()>0)
 			{
 				String[] nodeData = line.split("\\s+");
 				int id = Integer.parseInt(nodeData[0]);
 				Node tempNode = confMap.get(id);
-				
+
 				ArrayList<Integer> tempNeighbors = new ArrayList<>();
 
 				for(int i = 1; i< nodeData.length;i++)
@@ -240,9 +240,9 @@ public class Node {
 
 				tempNode.setNeighbors(tempNeighbors);
 			}
-			
+
 		}
-		
+
 		Node.setConfigMap(confMap);
 		Node thisNode = Node.getConfigMap().get(UID);
 
@@ -251,7 +251,7 @@ public class Node {
 		thisNode.setServerSocket(socket);
 
 		System.out.println("Config file read, Socket created, halting for 10 sec");
-		
+
 		/*
 		 * Start client manager process which will keep accepting incoming connections to socket
 		 * read messages and store them into thread safe buffer
@@ -268,18 +268,18 @@ public class Node {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		System.out.println("Client manager started");
-		
+
 		/*
 		 * Create another thread to process Peleg's leader election algorithm
 		 */
 		PelegsProcessor pp = new PelegsProcessor(thisNode);
-		
+
 		Thread processorThread = new Thread(pp);
-		
+
 		processorThread.start();
-		
+
 		System.out.println("Pelegs processor thread started");
 
 		sc.close();
