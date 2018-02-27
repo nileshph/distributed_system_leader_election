@@ -81,6 +81,14 @@ public class Node {
 	 */
 	CopyOnWriteArrayList<Msg> msgBuffer;
 
+	public synchronized boolean isCloseSocketFlag() {
+		return closeSocketFlag;
+	}
+
+	public synchronized void setCloseSocketFlag(boolean closeSocketFlag) {
+		this.closeSocketFlag = closeSocketFlag;
+	}
+
 	public static HashMap<Integer, Node> getConfigMap() {
 		return configMap;
 	}
@@ -257,7 +265,7 @@ public class Node {
 
 		thisNode.setServerSocket(socket);
 
-		System.out.println("Config file read, Socket created, halting for 10 sec");
+		System.out.println("Config file read, Socket created, starting Peleg's Processing");
 
 		/*
 		 * Start client manager process which will keep accepting incoming connections to socket
@@ -268,15 +276,15 @@ public class Node {
 		t.start();
 
 		/*
-		 * halt processing for 10 seconds to make sure other nodes are up and accepting socket connections
+		 * halt processing for 5 seconds to make sure other nodes are up and accepting socket connections
 		 */
 		try {
-			Thread.sleep(10000);
+			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
-		System.out.println("Client manager started");
+		System.out.println("Client manager process started.");
 
 		/*
 		 * Create another thread to process Peleg's leader election algorithm

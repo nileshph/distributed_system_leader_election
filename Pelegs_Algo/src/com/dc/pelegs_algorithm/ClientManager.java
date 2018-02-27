@@ -22,7 +22,7 @@ public class ClientManager implements Runnable{
 	@Override
 	public void run() {
 
-		while(!thisNode.closeSocketFlag)
+		while(!thisNode.isCloseSocketFlag())
 		{
 			ObjectInputStream in = null;
 
@@ -58,10 +58,8 @@ public class ClientManager implements Runnable{
 	}
 
 	public void runCleanUp() {
-		/*
-		 * clean up stub
-		 */
-
+		
+		System.out.println("Closing server sockets");
 		try {
 			thisNode.serverSocket.close();
 		} catch (IOException e) {
